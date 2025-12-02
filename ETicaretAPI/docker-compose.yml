@@ -1,0 +1,45 @@
+services:
+  # 1. VERİTABANI (SQL Server)
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server_container
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=GucluSifre123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  # 2. REDIS (Önbellek) - YENİ EKLENDİ 🚀
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+
+  # 3. BİZİM API
+  api:
+    image: eticaret-api
+    build: .
+    container_name: eticaret_api_container
+    ports:
+      - "5000:8080"
+    depends_on:
+      - db
+      - redis # Redis başlamadan API başlamasın
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      # SQL Bağlantısı
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=ETicaretDb;User Id=sa;Password=GucluSifre123!;TrustServerCertificate=True;
+      # 👇 REDIS BAĞLANTISI (localhost YERİNE redis YAZDIK)
+      - ConnectionStrings__Redis=redis:6379
+      - MailSettings__Server=smtp.gmail.com
+      - MailSettings__Port=587
+      - MailSettings__SenderName=ETicaret Robotu
+      - MailSettings__SenderEmail=abdlsmt.06@gmail.com
+      - MailSettings__UserName=abdlsmt.06@gmail.com
+      - MailSettings__Password=evcn gomr wtya npfa
+volumes:
+  sql_data:

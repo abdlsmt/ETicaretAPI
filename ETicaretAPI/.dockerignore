@@ -1,0 +1,6 @@
+﻿bin/
+obj/
+.git/
+.vscode/
+.vs/
+Dockerfile
